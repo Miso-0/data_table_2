@@ -1386,10 +1386,10 @@ class DataTable2 extends DataTable {
             decoration: rowDecoration ??
                 BoxDecoration(
                   // Changed standard behaviour to never add border should the thickness be 0
-                  border: dividerThickness == null ||
-                          (dividerThickness != null && dividerThickness != 0.0)
-                      ? border
-                      : null,
+                  // border: dividerThickness == null ||
+                  //         (dividerThickness != null && dividerThickness != 0.0)
+                  //     ? border
+                  //     : null,
                   color: rowColor ?? defaultRowColor.resolve(states),
                 ),
             children: List<Widget>.filled(
