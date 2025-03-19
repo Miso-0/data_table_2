@@ -209,8 +209,8 @@ class DataTable2 extends DataTable {
     }
   }
 
-final DataRow2? totalsRow;
-  
+  final DataRow2? totalsRow;
+
   /// The default height of the heading row.
   static const double _headingRowHeight = 56.0;
 
@@ -940,55 +940,53 @@ final DataRow2? totalsRow;
               return rows == null || rows.isEmpty || rows[0].children.isEmpty;
             }
 
-            List<TableRow>? totalsRowWidget;
+            Widget? totalsRowWidget;
             if (totalsRow != null) {
               int totalColumns = columns.length + (showCheckboxColumn ? 1 : 0);
-  
-              totalsRowWidget = [
-                TableRow(
-                  decoration: totalsRow!.decoration,
-                  children: [
-                    ...totalsRow!.cells.map((cell) => _buildDataCell(
-                          context: context,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: columnSpacing ?? _columnSpacing),
-                          specificRowHeight: dataRowHeight,
-                          label: cell.child,
-                          numeric: false,
-                          placeholder: false,
-                          showEditIcon: false,
-                          onTap: null,
-                          onDoubleTap: null,
-                          onLongPress: null,
-                          onTapDown: null,
-                          onTapCancel: null,
-                          onRowTap: null,
-                          onRowDoubleTap: null,
-                          onRowLongPress: null,
-                          onRowSecondaryTap: null,
-                          onRowSecondaryTapDown: null,
-                          onSelectChanged: null,
-                          overlayColor: null,
-                        )),
-                    // Fill missing columns with empty cells
-                    ...List.generate(
-                      totalColumns - totalsRow!.cells.length,
-                      (index) => const SizedBox(),
-                    )
-                  ],
-                )
-              ];
+
+              totalsRowWidget = Table(
+                columnWidths: widthsAsMap, // Use same column widths
+                children: [
+                  TableRow(
+                    decoration: totalsRow!.decoration,
+                    children: [
+                      ...totalsRow!.cells.map((cell) => _buildDataCell(
+                            context: context,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: columnSpacing ?? _columnSpacing),
+                            specificRowHeight: dataRowHeight,
+                            label: cell.child,
+                            numeric: false,
+                            placeholder: false,
+                            showEditIcon: false,
+                            onTap: null,
+                            onDoubleTap: null,
+                            onLongPress: null,
+                            onTapDown: null,
+                            onTapCancel: null,
+                            onRowTap: null,
+                            onRowDoubleTap: null,
+                            onRowLongPress: null,
+                            onRowSecondaryTap: null,
+                            onRowSecondaryTapDown: null,
+                            onSelectChanged: null,
+                            overlayColor: null,
+                          )),
+                      ...List.generate(
+                        totalColumns - totalsRow!.cells.length,
+                        (index) => const SizedBox(),
+                      )
+                    ],
+                  )
+                ],
+              );
             }
-
-
 
             var coreTable = Table(
                 columnWidths:
                     actualFixedColumns > 0 ? rightWidthsAsMap : widthsAsMap,
-                children: [
-                  ...coreRows ?? [],
-                  if (totalsRowWidget != null) ...totalsRowWidget
-                ],
+                children: coreRows ?? [], // Only the scrollable rows
+
                 border: border == null
                     ? null
                     : isRowsEmpty(fixedRows) && isRowsEmpty(fixedColumnsRows)
@@ -1186,7 +1184,19 @@ final DataRow2? totalsRow;
                             ],
                           )));
 
-            return completeWidget;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Wrap completeWidget in Expanded to ensure it scrolls
+                Expanded(
+                  child: completeWidget,
+                ),
+
+                // Fixed totals row at the bottom
+                if (totalsRowWidget != null) totalsRowWidget,
+              ],
+            );
+
           });
     });
 
