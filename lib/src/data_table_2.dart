@@ -942,36 +942,44 @@ final DataRow2? totalsRow;
 
             List<TableRow>? totalsRowWidget;
             if (totalsRow != null) {
+              int totalColumns = columns.length + (showCheckboxColumn ? 1 : 0);
+  
               totalsRowWidget = [
                 TableRow(
                   decoration: totalsRow!.decoration,
-                  children: totalsRow!.cells
-                      .map((cell) => _buildDataCell(
-                            context: context,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: columnSpacing ?? _columnSpacing),
-                            specificRowHeight: dataRowHeight,
-                            label: cell.child,
-                            numeric: false,
-                            placeholder: false,
-                            showEditIcon: false,
-                            onTap: null,
-                            onDoubleTap: null,
-                            onLongPress: null,
-                            onTapDown: null,
-                            onTapCancel: null,
-                            onRowTap: null,
-                            onRowDoubleTap: null,
-                            onRowLongPress: null,
-                            onRowSecondaryTap: null,
-                            onRowSecondaryTapDown: null,
-                            onSelectChanged: null,
-                            overlayColor: null,
-                          ))
-                      .toList(),
+                  children: [
+                    ...totalsRow!.cells.map((cell) => _buildDataCell(
+                          context: context,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: columnSpacing ?? _columnSpacing),
+                          specificRowHeight: dataRowHeight,
+                          label: cell.child,
+                          numeric: false,
+                          placeholder: false,
+                          showEditIcon: false,
+                          onTap: null,
+                          onDoubleTap: null,
+                          onLongPress: null,
+                          onTapDown: null,
+                          onTapCancel: null,
+                          onRowTap: null,
+                          onRowDoubleTap: null,
+                          onRowLongPress: null,
+                          onRowSecondaryTap: null,
+                          onRowSecondaryTapDown: null,
+                          onSelectChanged: null,
+                          overlayColor: null,
+                        )),
+                    // Fill missing columns with empty cells
+                    ...List.generate(
+                      totalColumns - totalsRow!.cells.length,
+                      (index) => const SizedBox(),
+                    )
+                  ],
                 )
               ];
             }
+
 
 
             var coreTable = Table(
