@@ -148,6 +148,7 @@ class DataTable2 extends DataTable {
   DataTable2({
     super.key,
     required super.columns,
+    this.totalsRow,
     super.sortColumnIndex,
     super.sortAscending = true,
     super.onSelectAll,
@@ -208,6 +209,8 @@ class DataTable2 extends DataTable {
     }
   }
 
+final DataRow2? totalsRow;
+  
   /// The default height of the heading row.
   static const double _headingRowHeight = 56.0;
 
@@ -937,10 +940,47 @@ class DataTable2 extends DataTable {
               return rows == null || rows.isEmpty || rows[0].children.isEmpty;
             }
 
+            List<TableRow>? totalsRowWidget;
+            if (totalsRow != null) {
+              totalsRowWidget = [
+                TableRow(
+                  decoration: totalsRow!.decoration,
+                  children: totalsRow!.cells
+                      .map((cell) => _buildDataCell(
+                            context: context,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: columnSpacing ?? _columnSpacing),
+                            specificRowHeight: dataRowHeight,
+                            label: cell.child,
+                            numeric: false,
+                            placeholder: false,
+                            showEditIcon: false,
+                            onTap: null,
+                            onDoubleTap: null,
+                            onLongPress: null,
+                            onTapDown: null,
+                            onTapCancel: null,
+                            onRowTap: null,
+                            onRowDoubleTap: null,
+                            onRowLongPress: null,
+                            onRowSecondaryTap: null,
+                            onRowSecondaryTapDown: null,
+                            onSelectChanged: null,
+                            overlayColor: null,
+                          ))
+                      .toList(),
+                )
+              ];
+            }
+
+
             var coreTable = Table(
                 columnWidths:
                     actualFixedColumns > 0 ? rightWidthsAsMap : widthsAsMap,
-                children: coreRows ?? [],
+                children: [
+                  ...coreRows ?? [],
+                  if (totalsRowWidget != null) ...totalsRowWidget
+                ],
                 border: border == null
                     ? null
                     : isRowsEmpty(fixedRows) && isRowsEmpty(fixedColumnsRows)
