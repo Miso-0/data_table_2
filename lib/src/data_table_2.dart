@@ -149,6 +149,7 @@ class DataTable2 extends DataTable {
     super.key,
     required super.columns,
     this.totalsRow,
+    this.cellBoxFit,
     super.sortColumnIndex,
     super.sortAscending = true,
     super.onSelectAll,
@@ -210,6 +211,8 @@ class DataTable2 extends DataTable {
   }
 
   final DataRow2? totalsRow;
+
+  final BoxFit? cellBoxFit;
 
   /// The default height of the heading row.
   static const double _headingRowHeight = 56.0;
@@ -475,109 +478,56 @@ class DataTable2 extends DataTable {
     return label;
   }
 
-  Widget _buildDataCell(
-      {required BuildContext context,
-      required EdgeInsetsGeometry padding,
-      required double? specificRowHeight,
-      required Widget label,
-      required bool numeric,
-      required bool placeholder,
-      required bool showEditIcon,
-      required GestureTapCallback? onTap,
-      required GestureTapCallback? onDoubleTap,
-      required GestureLongPressCallback? onLongPress,
-      required GestureTapDownCallback? onTapDown,
-      required GestureTapCancelCallback? onTapCancel,
-      required GestureTapCallback? onRowTap,
-      required GestureTapCallback? onRowDoubleTap,
-      required GestureLongPressCallback? onRowLongPress,
-      required GestureTapCallback? onRowSecondaryTap,
-      required GestureTapDownCallback? onRowSecondaryTapDown,
-      required VoidCallback? onSelectChanged,
-      required WidgetStateProperty<Color?>? overlayColor}) {
+  Widget _buildDataCell({
+    required BuildContext context,
+    required EdgeInsetsGeometry padding,
+    required double? specificRowHeight,
+    required Widget label,
+    required bool numeric,
+    required bool placeholder,
+    required bool showEditIcon,
+    required GestureTapCallback? onTap,
+    required GestureTapCallback? onDoubleTap,
+    required GestureLongPressCallback? onLongPress,
+    required GestureTapDownCallback? onTapDown,
+    required GestureTapCancelCallback? onTapCancel,
+    required GestureTapCallback? onRowTap,
+    required GestureTapCallback? onRowDoubleTap,
+    required GestureLongPressCallback? onRowLongPress,
+    required GestureTapCallback? onRowSecondaryTap,
+    required GestureTapDownCallback? onRowSecondaryTapDown,
+    required VoidCallback? onSelectChanged,
+    required WidgetStateProperty<Color?>? overlayColor,
+  }) {
     final ThemeData themeData = Theme.of(context);
     final DataTableThemeData dataTableTheme = DataTableTheme.of(context);
-
-    if (showEditIcon) {
-      const Widget icon = Icon(Icons.edit, size: 18.0);
-      label = Expanded(child: label);
-      label = Row(
-        textDirection: numeric ? TextDirection.rtl : null,
-        children: <Widget>[label, icon],
-      );
-    }
 
     final TextStyle effectiveDataTextStyle = dataTextStyle ??
         dataTableTheme.dataTextStyle ??
         themeData.dataTableTheme.dataTextStyle ??
         themeData.textTheme.bodyMedium!;
-
-    final (effectiveDataRowMinHeight, effectiveDataRowMaxHeight) =
-        getMinMaxRowHeight(dataTableTheme);
-
-    label = Container(
+    if (cellBoxFit != null) {
+      label = FittedBox(
+        fit: cellBoxFit!,
+        child: label,
+      );
+    }
+    return Container(
       padding: padding,
       constraints: BoxConstraints(
-          minHeight: specificRowHeight ?? effectiveDataRowMinHeight,
-          maxHeight: specificRowHeight ?? effectiveDataRowMaxHeight),
+        minHeight: specificRowHeight ?? kMinInteractiveDimension,
+      ),
       alignment:
           numeric ? Alignment.centerRight : AlignmentDirectional.centerStart,
       child: DefaultTextStyle(
         style: effectiveDataTextStyle.copyWith(
           color: placeholder
-              ? effectiveDataTextStyle.color!.withValues(alpha: 0.6)
+              ? effectiveDataTextStyle.color!.withOpacity(0.6)
               : null,
         ),
         child: DropdownButtonHideUnderline(child: label),
       ),
     );
-
-    // Wrap label with InkResponse if there're cell or row level tap events
-    if (onTap != null ||
-        onDoubleTap != null ||
-        onLongPress != null ||
-        onTapDown != null ||
-        onTapCancel != null) {
-      // cell level
-      label = InkWell(
-        onTap: () {
-          onTap?.call();
-          onRowTap?.call();
-        },
-        onDoubleTap: () {
-          onDoubleTap?.call();
-          onRowDoubleTap?.call();
-        },
-        onLongPress: () {
-          onLongPress?.call();
-          onRowLongPress?.call();
-        },
-        onTapDown: onTapDown,
-        onTapCancel: onTapCancel,
-        // Also add row level events to cells
-        onSecondaryTap: onRowSecondaryTap,
-        onSecondaryTapDown: onRowSecondaryTapDown,
-        overlayColor: overlayColor,
-        child: label,
-      );
-    } else if (onSelectChanged != null ||
-        onRowTap != null ||
-        onRowDoubleTap != null ||
-        onRowLongPress != null ||
-        onRowSecondaryTap != null ||
-        onRowSecondaryTapDown != null) {
-      // row level
-      label = TableRowInkWell(
-        onTap: onRowTap ?? onSelectChanged,
-        onDoubleTap: onRowDoubleTap,
-        onLongPress: onRowLongPress,
-        onSecondaryTap: onRowSecondaryTap,
-        onSecondaryTapDown: onRowSecondaryTapDown,
-        overlayColor: overlayColor,
-        child: label,
-      );
-    }
-    return label;
   }
 
   @override
@@ -942,7 +892,7 @@ class DataTable2 extends DataTable {
 
             Widget? totalsRowWidget;
             if (totalsRow != null) {
-             // int totalColumns = columns.length + (showCheckboxColumn ? 1 : 0);
+              // int totalColumns = columns.length + (showCheckboxColumn ? 1 : 0);
 
               totalsRowWidget = Table(
                 columnWidths: widthsAsMap, // Use same column widths
@@ -1194,7 +1144,6 @@ class DataTable2 extends DataTable {
                 if (totalsRowWidget != null) totalsRowWidget,
               ],
             );
-
           });
     });
 
