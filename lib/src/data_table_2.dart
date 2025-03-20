@@ -942,15 +942,16 @@ class DataTable2 extends DataTable {
 
             Widget? totalsRowWidget;
             if (totalsRow != null) {
-              int totalColumns = columns.length + (showCheckboxColumn ? 1 : 0);
+             // int totalColumns = columns.length + (showCheckboxColumn ? 1 : 0);
 
               totalsRowWidget = Table(
                 columnWidths: widthsAsMap, // Use same column widths
                 children: [
                   TableRow(
                     decoration: totalsRow!.decoration,
-                    children: [
-                      ...totalsRow!.cells.map((cell) => _buildDataCell(
+                    children: totalsRow!.cells
+                        .map(
+                          (cell) => _buildDataCell(
                             context: context,
                             padding: EdgeInsets.symmetric(
                                 horizontal: columnSpacing ?? _columnSpacing),
@@ -971,12 +972,9 @@ class DataTable2 extends DataTable {
                             onRowSecondaryTapDown: null,
                             onSelectChanged: null,
                             overlayColor: null,
-                          )),
-                      ...List.generate(
-                        totalColumns - totalsRow!.cells.length,
-                        (index) => const SizedBox(),
-                      )
-                    ],
+                          ),
+                        )
+                        .toList(),
                   )
                 ],
               );
